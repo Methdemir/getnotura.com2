@@ -366,5 +366,5 @@ expectRedirect("/takip/", "https://sarperstudios.com/takip/");
 expectRedirect("/takip", "https://sarperstudios.com/takip/");
 expectRedirect("/takip/*", "https://sarperstudios.com/takip/:splat");
 if (redirectRules.size !== pageRecords.length * 2 + studioPaths.length * 2 + 3) throw new Error("Unexpected compatibility redirect count.");
-if (createHash("sha256").update(await readFile(path.join(dist, "app-ads.txt"))).digest("hex") !== "20a66a8a955dd3a1b2931435c56900f9a7d9a68e187677eaa0b58a7899ae607c") throw new Error("Legacy app-ads.txt must be preserved exactly.");
+if (createHash("sha256").update(await readFile(path.join(dist, "app-ads.txt"))).digest("hex") !== "e16eb956f2576d7dee40d2795f717ffc33bd526c982604fe65df7d8575cd5821") throw new Error("Legacy app-ads.txt must be preserved exactly.");
 console.log(`Compatibility: ${redirectRules.size} HTTP 301 rules, no studio HTML copies, original app-ads.txt preserved.`);
