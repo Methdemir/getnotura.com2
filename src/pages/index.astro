@@ -1,0 +1,19 @@
+---
+/** The neutral root serves the English Notura home and is the x-default
+ * alternative of the localized home pages. All URLs are self-canonical. */
+import HomeSurface from "../components/HomeSurface.astro";
+import { translate } from "../i18n/translations";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const localeId = "en";
+---
+
+<BaseLayout
+  localeId={localeId}
+  destination="home"
+  canonicalPath="/"
+  title={translate(localeId, "metaHomeTitle")}
+  description={translate(localeId, "metaHomeDescription")}
+>
+  <HomeSurface localeId={localeId} />
+</BaseLayout>

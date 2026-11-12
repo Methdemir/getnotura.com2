@@ -1,0 +1,26 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Dependencies
+node_modules/
+
+# Astro build output
+.astro/
+dist/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Local-only tooling state
+.claude/settings.local.json
+.impeccable/config.local.json
+.impeccable/questions/
