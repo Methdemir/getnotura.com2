@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { access, readFile, readdir } from "node:fs/promises";
 import { constants } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -33,7 +34,7 @@ const linkTags = (html, rel) =>
     .map((match) => match[0])
     .filter((tag) => getAttribute(tag, "rel") === rel);
 
-const publishedDestinations = ["home", "product", "howItWorks", "features", "privacy", "terms"];
+const publishedDestinations = JSON.parse(await readFile(path.join(root, "src/i18n/published-destinations.json"), "utf8"));
 const metaTitleKeys = {
   home: "metaHomeTitle",
   product: "metaProductTitle",
@@ -335,3 +336,35 @@ for (const file of files.filter(file => file.endsWith(".html"))) {
   }
 }
 console.log(`Standalone Notura validated: ${pageRecords.length} canonical pages, reciprocal hreflang, release robots, exact sitemap, links/assets, zero client JS.`);
+
+// Validate the deployed Cloudflare rules independently against the canonical matrix.
+const redirectText = await readFile(path.join(dist, "_redirects"), "utf8");
+const redirectLines = redirectText.split(/\r?\n/).filter(line => line && !line.startsWith("#"));
+const redirectRules = new Map();
+for (const line of redirectLines) {
+  const [source, target, status, ...extra] = line.trim().split(/\s+/);
+  if (extra.length || !source || !target || status !== "301" || redirectRules.has(source)) {
+    throw new Error(`Invalid or duplicate HTTP redirect: ${line}`);
+  }
+  redirectRules.set(source, target);
+}
+const expectRedirect = (source, target) => {
+  if (redirectRules.get(source) !== target) throw new Error(`Missing compatibility 301: ${source} -> ${target}`);
+};
+for (const page of pageRecords) {
+  const oldPath = `/notura${page.path}`;
+  expectRedirect(oldPath, page.canonical);
+  expectRedirect(oldPath.slice(0, -1), page.canonical);
+}
+const studioPaths = JSON.parse(await readFile(path.join(root, "src/config/legacy-studio-paths.json"), "utf8"));
+for (const studioPath of studioPaths) {
+  expectRedirect(studioPath, `https://sarperstudios.com${studioPath}`);
+  expectRedirect(studioPath.slice(0, -1), `https://sarperstudios.com${studioPath}`);
+  if (await exists(pageFile(studioPath))) throw new Error(`Studio HTML must not be copied: ${studioPath}`);
+}
+expectRedirect("/takip/", "https://sarperstudios.com/takip/");
+expectRedirect("/takip", "https://sarperstudios.com/takip/");
+expectRedirect("/takip/*", "https://sarperstudios.com/takip/:splat");
+if (redirectRules.size !== pageRecords.length * 2 + studioPaths.length * 2 + 3) throw new Error("Unexpected compatibility redirect count.");
+if (createHash("sha256").update(await readFile(path.join(dist, "app-ads.txt"))).digest("hex") !== "20a66a8a955dd3a1b2931435c56900f9a7d9a68e187677eaa0b58a7899ae607c") throw new Error("Legacy app-ads.txt must be preserved exactly.");
+console.log(`Compatibility: ${redirectRules.size} HTTP 301 rules, no studio HTML copies, original app-ads.txt preserved.`);

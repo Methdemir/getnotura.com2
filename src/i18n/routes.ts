@@ -1,4 +1,5 @@
 import routeData from "./routes.json";
+import publishedDestinationData from "./published-destinations.json";
 import { getLocale, getPublishedLocale, publishedLocales } from "./locales";
 
 export type Destination = keyof typeof routeData;
@@ -9,14 +10,7 @@ export const destinations = routeData;
 /** Standalone Notura owns the domain root. */
 export const noturaBase = "";
 
-export const publishedDestinations = [
-  "home",
-  "product",
-  "howItWorks",
-  "features",
-  "privacy",
-  "terms",
-] as const;
+export const publishedDestinations = publishedDestinationData as readonly Destination[];
 
 export const routeAvailability = new Set<RouteAvailabilityKey>(
   publishedLocales.flatMap((locale) =>

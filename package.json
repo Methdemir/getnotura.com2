@@ -8,9 +8,9 @@
     "npm": ">=9.6.5"
   },
   "scripts": {
-    "dev": "node scripts/run-astro.mjs dev",
+    "dev": "node scripts/generate-redirects.mjs && node scripts/run-astro.mjs dev",
     "check": "node scripts/run-astro.mjs check",
-    "build": "node scripts/run-astro.mjs build",
+    "build": "node scripts/generate-redirects.mjs && node scripts/run-astro.mjs build",
     "validate:translations": "node scripts/validate-translations.mjs",
     "validate:locales": "node scripts/validate-locales.mjs",
     "validate:build": "node scripts/validate-build.mjs",
